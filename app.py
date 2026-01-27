@@ -339,7 +339,7 @@ def yawning_detector():
                 yawn_counter = 0
 
             if yawn_counter >= YAWN_FRAMES:
-                label = "😮 YAWNING"
+                label = "YAWNING"
                 color = (0, 0, 255)
 
             cv2.putText(frame, f"MOR: {mor:.2f}", (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
@@ -401,7 +401,7 @@ def generate_frames(cam_id):
                     course = info["course"]
                     role_label = "Student"
 
-            # ---------- 2️⃣ Crop face for MediaPipe ----------
+            # ---------- Crop face for MediaPipe ----------
             face_crop = frame[y1:y2, x1:x2].copy()
             if face_crop.size != 0:
                 rgb_crop = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
@@ -421,7 +421,7 @@ def generate_frames(cam_id):
 
                     # Yawn detection condition
                     if mor > YAWN_THRESHOLD and ear < EYE_CLOSED_THRESHOLD:
-                        yawn_label = "😮 YAWNING"
+                        yawn_label = "YAWNING"
                         yawn_color = (0, 0, 255)
 
                 # Draw Yawn/Eye label above the face
@@ -457,12 +457,12 @@ def generate_frames(cam_id):
                 cv2.imwrite(os.path.join(SNAPSHOT_DIR, image_name), face_crop)
 
             print("RFID:", arduino_id, "Face:", student_id)
-            # ✅ Logging + attendance
+            #  Logging + attendance
             if should_log(student_id):
                 conn = sqlite3.connect(LOG_DB)
                 c = conn.cursor()
 
-                # ✅ ALWAYS log
+                #  ALWAYS log
                 c.execute(
                     "INSERT INTO logs (student_id, name, course, time_in, score, image) VALUES (?, ?, ?, ?, ?, ?)",
                     (
@@ -475,7 +475,7 @@ def generate_frames(cam_id):
                     )
                 )
 
-                # ✅ Attendance ONLY if Known + RFID match
+                #  Attendance ONLY if Known + RFID match
                 if student_id != "Unknown" and arduino_id is not None and arduino_id == student_id:
                     c.execute(
                         "INSERT INTO attendance (student_id, name, course, time_in, score, status, image) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -1047,7 +1047,7 @@ def save_visitor_face():
         # Clear buffer for next visitor
         visitor_embeddings["current"].clear()
 
-        return "Visitor stable embedding saved ✅", 200
+        return "Visitor stable embedding saved ", 200
 
     return "No face detected", 400
 
@@ -1155,4 +1155,5 @@ if __name__ == "__main__":
 
     # Run Flask app
     app.run(debug=True, use_reloader=False)
+
 
