@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Visitor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            padding: 2rem;
+            max-width: 500px;
+            margin: 3rem auto;
+            background-color: #ffffff;
+        }
+        .form-control:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+        .btn-primary {
+            background-color: #ffc107;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #e0a800;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #343a40;
+        }
+        .error-msg {
+            color: red;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Register Visitor</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="visitor_id" class="form-label">Visitor ID</label>
+            <input type="text" class="form-control" id="visitor_id" name="visitor_id" placeholder="Enter unique ID" required>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Visitor Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter full name" required>
+        </div>
+        <div class="mb-3">
+            <label for="visitor_type" class="form-label">Type of Visitor</label>
+            <select class="form-select" id="visitor_type" name="visitor_type">
+                <option value="Temporary">Temporary (1 day)</option>
+                <option value="Regular">Regular (1 semester)</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="purpose" class="form-label">Purpose of Visit</label>
+            <input type="text" class="form-control" id="purpose" name="purpose" placeholder="Enter purpose" required>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">Next: Capture Face</button>
+        </div>
+        {% if error %}
+        <p class="error-msg">{{ error }}</p>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Bootstrap JS (Optional for interactivity like dropdown) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
