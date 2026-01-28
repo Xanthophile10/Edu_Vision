@@ -1,160 +1,163 @@
-# Face Recognition & Monitoring System
+# Smart Face Recognition & Monitor System
 
 ## Overview
+This project is a **real-time smart monitoring system** that combines facial recognition, yawn detection, eye closure detection, pose estimation, and phone detection. It uses **RTSP camera streams** and integrates:
 
-This project is an advanced facial recognition and monitoring system built with Python, Flask, InsightFace, YOLO, and MediaPipe. It integrates multiple functionalities for real-time monitoring, attendance logging, visitor management, fatigue detection, and behavioral monitoring.
+- **Flask** – for the web dashboard and logs.
+- **InsightFace (Buffalo_L)** – for offline facial recognition.
+- **YOLO (Ultralytics)** – for pose and phone detection.
+- **MediaPipe FaceLandmarker** – for yawn and eye-closure detection.
+- **SQLite3** – for logging recognized faces and snapshots.
 
-The system is designed for educational or workplace environments, providing an efficient way to track attendance, detect yawning, monitor human poses, and detect mobile phone usage.
-
----
-
-## Key Features
-
-1. **Face Recognition**
-   - Detects and recognizes faces using InsightFace (buffalo_l model).
-   - Maintains a database of students and visitors.
-   - Multi-frame embedding for stable recognition.
-   - Logs attendance automatically when a recognized student’s RFID matches.
-
-2. **Yawn Detection**
-   - Detects yawning using MediaPipe FaceLandmarker.
-   - Calculates Mouth Open Ratio (MOR) and Eye Aspect Ratio (EAR).
-   - Visual alerts for fatigue detection.
-
-3. **Pose Detection**
-   - Real-time human pose estimation using YOLOv26 pose model.
-   - Highlights human skeleton and keypoints.
-
-4. **Phone Detection**
-   - Detects mobile phones using YOLOv26 COCO model.
-   - Alerts displayed on video frames.
-
-5. **RFID Integration**
-   - Reads RFID cards via Arduino serial communication.
-   - Links recognized students to their RFID for accurate attendance logging.
-
-6. **Visitor Management**
-   - Register temporary or permanent visitors.
-   - Auto-delete expired visitor records.
-   - Save embeddings and snapshots for visitors.
-
-7. **Web Dashboard**
-   - Built with Flask.
-   - Features:
-     - Live camera feeds
-     - Attendance and visitor logs
-     - Downloadable CSV reports
-     - Registration and management of students and visitors
-
-8. **Multi-Camera Support**
-   - Supports multiple RTSP or local cameras.
-   - Parallel threading for simultaneous camera feeds.
+The system captures live video, recognizes students, logs their attendance, detects drowsiness (yawning or eye closure), and monitors phone usage.
 
 ---
 
-## System Requirements
+## Features
 
-- Python >= 3.10
-- CUDA-enabled GPU (optional, for faster YOLO inference)
-- Arduino (optional, for RFID integration)
-- Libraries:
+### 1. Facial Recognition
+- Uses **Buffalo_L InsightFace model**.
+- Maintains a **face database (`face_db.pkl`)** for registered users.
+- Recognizes faces in real-time and labels them on the video stream.
+- Unknown faces are labeled as `Unknown`.
 
-```
-pip install opencv-python flask insightface mediapipe ultralytics torch pandas numpy
-```
+### 2. Attendance Logs
+- Logs are stored in **SQLite3 database (`face_logs.db`)**.
+- Each entry includes:
+  - `student_id`
+  - `name`
+  - `course`
+  - `time_in`
+  - `recognition score`
+  - `snapshot image`
+- Snapshots are saved in `face_snapshots/`.
 
-- YOLOv26 models:
-  - yolo26l-pose.pt (pose detection)
-  - yolo26l.pt (phone detection)
-- MediaPipe FaceLandmarker:
-  - face_landmarker.task (yawn detection)
+### 3. Yawn & Eye Closure Detection
+- Uses **MediaPipe FaceLandmarker**.
+- **Yawn Threshold:** Adjustable (default 0.25 for higher sensitivity).  
+- **Eye Closed Threshold:** 0.27.
+- Detects and labels "YAWNING" or "NO YAWN" in real-time.
+
+### 4. Pose & Phone Detection
+- Uses **YOLOv8 models**:
+  - `yolo26l-pose.pt` for pose detection
+  - `yolo26l.pt` for phone detection (class 67)
+- Draws bounding boxes and labels detected objects.
+
+### 5. Web Interface
+- Dashboard at `/` showing total registered faces.
+- **Register students** via `/register` → `/register_camera`.
+- **Live camera feed** for registration at `/register_feed`.
+- **Recognize live feed** at `/recognize` → `/recognize_feed`.
+- **Attendance logs** at `/logs`.
+- **Manage registered faces** at `/manage_faces`.
 
 ---
 
 ## Installation
 
-1. Clone the repository:
+### Prerequisites
+- Python 3.10+
+- GPU recommended for YOLO/InsightFace acceleration.
+- Libraries:
 ```bash
-git clone <your-repo-url>
-cd face-recognition-monitoring
+pip install flask opencv-python numpy torch torchvision ultralytics mediapipe insightface
 ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
+### RTSP Camera
+- Ensure RTSP camera is accessible:
+```python
+CAMERA_SOURCE = "rtsp://<username>:<password>@<IP>:554/stream1"
 ```
 
-3. Place required models in the project directory:
-   - yolo26l-pose.pt  
-   - yolo26l.pt  
-   - face_landmarker.task  
+### YOLO Models
+- Place models in your project folder:
+  - `yolo26l-pose.pt` → pose detection
+  - `yolo26l.pt` → phone detection
 
-4. Configure cameras:
-   - Edit CAMERA_SOURCES in the Python file with RTSP URLs or local camera indices.
-
-5. Configure Arduino (optional):
-   - Update SERIAL_PORT in the Python file with your Arduino COM port.
+### MediaPipe FaceLandmarker
+- Download your `.task` file and update the path:
+```python
+MODEL_PATH = "C:\\path\\to\\face_landmarker.task"
+```
 
 ---
 
-## Usage
+## Running the Project
 
-Run the main application:
+1. Start Flask:
 ```bash
 python app.py
 ```
 
-Open your browser and go to:
+2. Access the dashboard:
 ```
-http://localhost:5000
+http://127.0.0.1:5000/
 ```
 
-### Available Pages
+3. Register a student:
+- Navigate `/register`
+- Fill in student info → `/register_camera`
+- Capture face → Save
 
-- `/` – Dashboard (attendance summary, live feeds)  
-- `/register` – Student registration  
-- `/register_camera` – Camera feed for registration  
-- `/recognize` – Live recognition feed  
-- `/logs` – Attendance logs  
-- `/attendance` – Attendance reports  
-- `/manage_registered_students` – Edit/delete students  
-- `/register_visitor` – Visitor registration  
-- `/manage_visitors` – Edit/delete visitors  
-- `/download/attendance_csv` – Download CSV  
-- `/download/visitor_logs_csv` – Download CSV  
+4. Start recognition:
+- Navigate `/recognize`
+- Real-time recognition, yawn, and phone detection will display.
+
+5. View logs:
+- Navigate `/logs` for attendance records.
+- Snapshots are clickable links stored in `face_snapshots/`.
 
 ---
 
 ## Configuration
 
-- Yawn Detection Thresholds:
+### Yawn Sensitivity
+- **Lower threshold → more sensitive** (detects smaller mouth openings).
 ```python
-YAWN_THRESHOLD = 0.40
+YAWN_THRESHOLD = 0.25  # default 0.25
 EYE_CLOSED_THRESHOLD = 0.27
-YAWN_FRAMES = 10
 ```
 
-- Face Recognition:
-  - Embeddings stored in `face_db.pkl`
-  - Snapshots saved in `face_snapshots/`
+### Cooldown for logging
+- Prevents repeated log entries for the same face:
+```python
+LOG_COOLDOWN = 10  # seconds
+```
 
-- RFID Integration:
-  - Reads card ID from Arduino
-  - Matches with registered students for automatic attendance
+### RTSP Frame Buffer
+- Ensures smoother feed:
+```python
+frame_buffer = deque(maxlen=2)
+```
+
+---
+
+## File Structure
+```
+Project_1/
+│
+├─ app.py                   # Main Flask + recognition code
+├─ face_db.pkl              # Pickle file for registered faces
+├─ face_logs.db             # SQLite3 attendance logs
+├─ face_snapshots/          # Captured snapshots
+├─ yolo26l-pose.pt          # Pose detection model
+├─ yolo26l.pt               # Phone detection model
+├─ face_landmarker.task     # MediaPipe FaceLandmarker model
+└─ templates/               # HTML templates (index, register, logs, etc.)
+```
 
 ---
 
 ## Notes
-
-- Uses threading for real-time multi-camera processing.
-- GPU support improves YOLO inference speed.
-- Logs and snapshots are automatically saved.
-- Ensure RTSP URLs are valid and accessible.
-- Intended for educational or monitoring purposes—use ethically.
-
----
-
-## License
-
-MIT License – free to use, modify, and distribute.
+- Ensure GPU is available for YOLO and InsightFace for real-time performance.
+- For local testing without GPU, set:
+```python
+DEVICE = torch.device("cpu")
+```
+- Adjust **YAWN_THRESHOLD** for drowsiness detection sensitivity.
+- Make sure snapshots directory is writable:
+```python
+os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+```
 
