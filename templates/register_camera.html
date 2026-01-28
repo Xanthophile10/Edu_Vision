@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Capture Face</title>
+</head>
+<body style="text-align:center; font-family:Arial">
+
+<h2>Face Registration</h2>
+
+<img src="{{ url_for('register_feed') }}" width="640">
+
+<form action="/save_face" method="POST">
+    <button style="padding:10px 20px; margin:10px;">💾 Save Face</button>
+</form>
+
+<a href="/quit">
+    <button style="padding:10px 20px;">❌ Quit</button>
+</a>
+
+</body>
+</html>

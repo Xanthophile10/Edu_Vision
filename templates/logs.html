@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition Logs</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table, th, td { border: 1px solid #ccc; }
+        th, td { padding: 10px; text-align: left; vertical-align: middle; }
+        th { background: #f2f2f2; }
+        img { max-width: 80px; max-height: 80px; border-radius: 5px; transition: all 0.3s ease; cursor: pointer; }
+        img:hover { transform: scale(3); z-index: 10; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        .unknown { color: red; font-weight: bold; }
+        a { text-decoration: none; color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <h2>Face Recognition Logs</h2>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Time-In</th>
+            <th>Score</th>
+            <th>Snapshot</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log[0] }}</td>
+            
+            {% if log[1] != "Unknown" %}
+                <td>{{ log[1] }}</td>
+                <td>{{ log[2] }}</td>
+                <td>{{ log[3] }}</td>
+            {% else %}
+                <td colspan="3" class="unknown">Unknown</td>
+            {% endif %}
+            
+            <td>{{ log[4] }}</td>
+            <td>{{ "%.2f"|format(log[5]|float) }}</td>
+            <td>
+                {% if log[6] %}
+                    <img src="{{ url_for('face_snapshot', filename=log[6]) }}" alt="Face Snapshot">
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{{ url_for('index') }}">← Back to Dashboard</a>
+</body>
+</html>
