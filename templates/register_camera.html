@@ -2,45 +2,20 @@
 <html>
 <head>
     <title>Capture Face</title>
-    <style>
-        body { text-align: center; font-family: Arial; }
-        button { padding: 10px 20px; margin: 10px; }
-        #progress { margin-top: 15px; font-size: 18px; color: green; }
-    </style>
 </head>
-<body>
+<body style="text-align:center; font-family:Arial">
 
 <h2>Face Registration</h2>
 
 <img src="{{ url_for('register_feed') }}" width="640">
 
-<!-- Save Face button -->
-<button id="saveBtn">💾 Capture Frame</button>
-
-<div id="progress">Captured: 0 / 10 frames</div>
+<form action="/save_face" method="POST">
+    <button style="padding:10px 20px; margin:10px;">💾 Save Face</button>
+</form>
 
 <a href="/quit">
-    <button>❌ Quit</button>
+    <button style="padding:10px 20px;">❌ Quit</button>
 </a>
-
-<script>
-let captured = 0;
-const maxFrames = 10;
-
-document.getElementById("saveBtn").addEventListener("click", function() {
-    fetch("/save_face", { method: "POST" })
-        .then(response => {
-            captured++;
-            if(captured >= maxFrames){
-                document.getElementById("progress").innerText = "✅ Stable embedding saved!";
-                captured = 0; // reset for next student
-            } else {
-                document.getElementById("progress").innerText = `Captured: ${captured} / ${maxFrames} frames`;
-            }
-        })
-        .catch(err => console.error(err));
-});
-</script>
 
 </body>
 </html>
